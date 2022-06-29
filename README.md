@@ -1,3 +1,5 @@
+[![Pylint](https://github.com/amkuipers/aws-ip-ranges/actions/workflows/pylint.yml/badge.svg)](https://github.com/amkuipers/aws-ip-ranges/actions/workflows/pylint.yml)
+
 # tool: ipranges
 Queries the ip-ranges JSON file from AWS, and lists its content in another form. 
 The tool includes filters and an IP lookup.
