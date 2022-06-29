@@ -1,12 +1,11 @@
-# python3
-# ipranges.py
 
 import requests
 import json
 import ipaddress
 import argparse
 
-# only using the IPv4 prefixes in the list
+# usage: python3 ipranges.py
+# from the ip-ranges.json it only uses the IPv4 prefixes
 
 
 class IPRanges:
