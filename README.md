@@ -95,9 +95,10 @@ This is the default output.
 
 Example output with service and region filters:
 ```
+$ python3 ipranges.py --service S3 --region eu-west-2
 [+] Retrieving ip-ranges.json...
 [+] Retrieved ip-ranges.json
-[+] File size 1249383
+[+] File size 1249723
 [+] IPv4 CIDR ranges filter for service S3 in region eu-west-2
 [+] service S3, region eu-west-2, cidr 52.95.150.0/24, from 52.95.150.0, to 52.95.150.255
 [+] service S3, region eu-west-2, cidr 16.12.15.0/24, from 16.12.15.0, to 16.12.15.255
