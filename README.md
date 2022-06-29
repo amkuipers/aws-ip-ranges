@@ -1,6 +1,7 @@
-# repo: aws-ip-ranges
-Queries the ip-ranges JSON (AWS) and list it. Including filters and IP lookup.
-It currently works with the IPv4 ranges, and ignores the IPV6 ranges.
+# tool: ipranges
+Queries the ip-ranges JSON file from AWS, and lists its content in another form. 
+The tool includes filters and an IP lookup.
+It currently only works with the IPv4 ranges from that file, and ignores the IPv6 ranges.
 
 ```
 $ python3 ipranges.py -h
@@ -17,6 +18,48 @@ optional arguments:
                         lookup service and region by ip
 ```
 
+## IP filter
+
+The `-ip` or `--lookup` filter requires an IPv4 value like `52.219.169.42`.
+So when you are wondering if the IP is used on AWS? This will tell you.
+
+Example wide output with ip filter:
+```
+$ python3 ipranges.py -ip 52.219.169.42
+[+] Retrieving ip-ranges.json...
+[+] Retrieved ip-ranges.json
+[+] File size 1249723
+[+] IPv4 CIDR ranges filter for 52.219.169.42
+[+] service AMAZON, region eu-central-1, cidr 52.219.169.0/24, from 52.219.169.0, to 52.219.169.255
+[+] service S3, region eu-central-1, cidr 52.219.169.0/24, from 52.219.169.0, to 52.219.169.255
+```
+
+Example with the services/regions filters output, using the ip filter. 
+The IP is in `S3` in `eu-central-1`:
+```
+$ python3 ipranges.py -ip 52.219.169.42 --filters
+[+] Retrieving ip-ranges.json...
+[+] Retrieved ip-ranges.json
+[+] File size 1249723
+[+] IPv4 CIDR ranges filter for 52.219.169.42
+[+] service S3
+[+] service AMAZON
+[+] region eu-central-1
+```
+
+It can also be combined with the service and region filters. 
+Then the IP might not be found, and that could be useful too.
+
+```
+$ python3 ipranges.py --service S3 --region eu-west-2 -ip 52.219.169.42
+[+] Retrieving ip-ranges.json...
+[+] Retrieved ip-ranges.json
+[+] File size 1249723
+[+] IPv4 CIDR ranges filter for service S3 in region eu-west-2
+[+] IPv4 CIDR ranges filter for 52.219.169.42
+[-] Empty result
+```
+
 
 ## List filters
 
@@ -26,6 +69,7 @@ This will not show the wide list.
 
 Example output:
 ```
+$ python3 ipranges.py --filters
 [+] Retrieving ip-ranges.json...
 [+] Retrieved ip-ranges.json
 [+] File size 1249383
@@ -123,30 +167,3 @@ The `-s` or `--service` filter requires a value like `S3` or `EC2`.
 Can be used in the list filters and wide list.
 Use the list filters option to learn the available service values.
 
-## IP filter
-
-The `-ip` or `--lookup` filter requires an IPv4 value like `52.219.169.42`.
-Can be used in the list filters and wide list.
-
-Example wide output with ip filter:
-```
-$ python3 ipranges.py -ip 52.219.169.42
-[+] Retrieving ip-ranges.json...
-[+] Retrieved ip-ranges.json
-[+] File size 1249723
-[+] IPv4 CIDR ranges filter for 52.219.169.42
-[+] service AMAZON, region eu-central-1, cidr 52.219.169.0/24, from 52.219.169.0, to 52.219.169.255
-[+] service S3, region eu-central-1, cidr 52.219.169.0/24, from 52.219.169.0, to 52.219.169.255
-```
-
-Example filters output with ip filter, shows it is `S3` in `eu-central-1`:
-```
-$ python3 ipranges.py -ip 52.219.169.42 -f
-[+] Retrieving ip-ranges.json...
-[+] Retrieved ip-ranges.json
-[+] File size 1249723
-[+] IPv4 CIDR ranges filter for 52.219.169.42
-[+] service S3
-[+] service AMAZON
-[+] region eu-central-1
-```
