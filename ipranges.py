@@ -8,6 +8,8 @@ import requests
 
 
 class IPRanges:
+    """IPRanges to download, filter and print the AWS ip-ranges"""
+    
     def __init__(self):
         self.url = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
         self.ip_ranges = self._load()
@@ -15,13 +17,13 @@ class IPRanges:
     def _load(self):
         """download the remote json ip-ranges file"""
         print('[+] Retrieving ip-ranges.json...')
-        js = requests.get(self.url)
-        if js.status_code == 200:
+        resp = requests.get(self.url)
+        if resp.status_code == 200:
             print(f'[+] Retrieved ip-ranges.json')
-            print(f'[+] File size {len(js.text)}')
-            return json.loads(js.text)
-        else:
-            print(f'[-] Unexpected status {js.status_code} retrieving ip-ranges.json')
+            print(f'[+] File size {len(resp.text)}')
+            return json.loads(resp.text)
+        
+        print(f'[-] Unexpected status {resp.status_code} retrieving ip-ranges.json')
         return None
 
     def _filter_ipv4(self, key, value):
@@ -40,14 +42,14 @@ class IPRanges:
         if region is not None:
             self._filter_ipv4('region', region)
 
-    def filter_ipv4_by_ip(self, ip):
+    def filter_ipv4_by_ip(self, ipNumber):
         """mutates the IPv4 list with IP filter"""
-        print(f'[+] IPv4 CIDR ranges filter for {ip}')
+        print(f'[+] IPv4 CIDR ranges filter for {ipNumber}')
         result = {'prefixes': []}
         for prefix in self.ip_ranges['prefixes']:
             cidr = prefix['ip_prefix'].strip()
             net = ipaddress.ip_network(cidr)
-            if ipaddress.IPv4Address(ip) in ipaddress.ip_network(cidr):
+            if ipaddress.IPv4Address(ipNumber) in ipaddress.ip_network(cidr):
                 result['prefixes'].append(prefix)
         self.ip_ranges = result
 
@@ -61,7 +63,7 @@ class IPRanges:
             region = prefix['region']
             cidr = prefix['ip_prefix'].strip()
             net = ipaddress.ip_network(cidr)
-            print(f'[+] service {service}, region {region}, cidr {cidr}, from {net[0]}, to {net[-1]}')
+            print(f'[+] service {service}, region {region}, cidr {cidr} [{net[0]} - to {net[-1]}]')
 
     def print_filters(self):
         """print the services and regions from the (remaining) IPv4 list"""
