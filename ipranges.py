@@ -1,8 +1,7 @@
-
-import requests
 import json
 import ipaddress
 import argparse
+import requests
 
 # usage: python3 ipranges.py
 # from the ip-ranges.json it only uses the IPv4 prefixes
@@ -14,6 +13,7 @@ class IPRanges:
         self.ip_ranges = self._load()
 
     def _load(self):
+        """download the remote json ip-ranges file"""
         print('[+] Retrieving ip-ranges.json...')
         js = requests.get(self.url)
         if js.status_code == 200:
@@ -25,6 +25,7 @@ class IPRanges:
         return None
 
     def _filter_ipv4(self, key, value):
+        """mutates the IPv4 list with key value filter"""
         result = {'prefixes': []}
         for prefix in self.ip_ranges['prefixes']:
             if prefix[key] == value:
@@ -32,6 +33,7 @@ class IPRanges:
         self.ip_ranges = result
 
     def filter_ip_ranges(self, service, region):
+        """mutates the IPv4 list with service and or region filter"""
         print(f'[+] IPv4 CIDR ranges filter for service {service} in region {region}')
         if service is not None:
             self._filter_ipv4('service', service)
@@ -39,6 +41,7 @@ class IPRanges:
             self._filter_ipv4('region', region)
 
     def filter_ipv4_by_ip(self, ip):
+        """mutates the IPv4 list with IP filter"""
         print(f'[+] IPv4 CIDR ranges filter for {ip}')
         result = {'prefixes': []}
         for prefix in self.ip_ranges['prefixes']:
@@ -49,6 +52,7 @@ class IPRanges:
         self.ip_ranges = result
 
     def print_wide(self):
+        """print the (remaining) IPv4 list"""
         if len(self.ip_ranges['prefixes']) == 0:
             print(f'[-] Empty result')
 
@@ -60,6 +64,7 @@ class IPRanges:
             print(f'[+] service {service}, region {region}, cidr {cidr}, from {net[0]}, to {net[-1]}')
 
     def print_filters(self):
+        """print the services and regions from the (remaining) IPv4 list"""
         if len(self.ip_ranges['prefixes']) == 0:
             print(f'[-] Empty result')
 
