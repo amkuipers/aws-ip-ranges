@@ -11,6 +11,7 @@ class IPRanges:
     """IPRanges to download, filter and print the AWS ip-ranges"""
     
     def __init__(self):
+        """init with url, and loads it"""
         self.url = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
         self.ip_ranges = self._load()
 
@@ -42,14 +43,14 @@ class IPRanges:
         if region is not None:
             self._filter_ipv4('region', region)
 
-    def filter_ipv4_by_ip(self, ipNumber):
+    def filter_ipv4_by_ip(self, ip_number):
         """mutates the IPv4 list with IP filter"""
-        print(f'[+] IPv4 CIDR ranges filter for {ipNumber}')
+        print(f'[+] IPv4 CIDR ranges filter for {ip_number}')
         result = {'prefixes': []}
         for prefix in self.ip_ranges['prefixes']:
             cidr = prefix['ip_prefix'].strip()
             net = ipaddress.ip_network(cidr)
-            if ipaddress.IPv4Address(ipNumber) in ipaddress.ip_network(cidr):
+            if ipaddress.IPv4Address(ip_number) in ipaddress.ip_network(cidr):
                 result['prefixes'].append(prefix)
         self.ip_ranges = result
 
