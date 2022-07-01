@@ -1,3 +1,5 @@
+"""The ipranges tool, downloads the AWS ip-ranges.json, and enables listing and filters"""
+
 import json
 import ipaddress
 import argparse
@@ -9,7 +11,7 @@ import requests
 
 class IPRanges:
     """IPRanges to download, filter and print the AWS ip-ranges"""
-    
+
     def __init__(self):
         """init with url, and loads it"""
         self.url = 'https://ip-ranges.amazonaws.com/ip-ranges.json'
@@ -20,10 +22,10 @@ class IPRanges:
         print('[+] Retrieving ip-ranges.json...')
         resp = requests.get(self.url)
         if resp.status_code == 200:
-            print(f'[+] Retrieved ip-ranges.json')
+            print('[+] Retrieved ip-ranges.json')
             print(f'[+] File size {len(resp.text)}')
             return json.loads(resp.text)
-        
+
         print(f'[-] Unexpected status {resp.status_code} retrieving ip-ranges.json')
         return None
 
@@ -49,7 +51,6 @@ class IPRanges:
         result = {'prefixes': []}
         for prefix in self.ip_ranges['prefixes']:
             cidr = prefix['ip_prefix'].strip()
-            net = ipaddress.ip_network(cidr)
             if ipaddress.IPv4Address(ip_number) in ipaddress.ip_network(cidr):
                 result['prefixes'].append(prefix)
         self.ip_ranges = result
@@ -57,7 +58,7 @@ class IPRanges:
     def print_wide(self):
         """print the (remaining) IPv4 list"""
         if len(self.ip_ranges['prefixes']) == 0:
-            print(f'[-] Empty result')
+            print('[-] Empty result')
 
         for prefix in self.ip_ranges['prefixes']:
             service = prefix['service']
@@ -69,7 +70,7 @@ class IPRanges:
     def print_filters(self):
         """print the services and regions from the (remaining) IPv4 list"""
         if len(self.ip_ranges['prefixes']) == 0:
-            print(f'[-] Empty result')
+            print('[-] Empty result')
 
         services = set()  # set
         regions = set()  # set
