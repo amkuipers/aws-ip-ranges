@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """The ipranges tool, downloads the AWS ip-ranges.json, and enables listing and filters"""
 
 import json
@@ -5,7 +7,7 @@ import ipaddress
 import argparse
 import requests
 
-# usage: python3 ipranges.py
+# usage: ./ipranges.py
 # from the ip-ranges.json it only uses the IPv4 prefixes
 
 
@@ -45,14 +47,15 @@ class IPRanges:
         if region is not None:
             self._filter_ipv4('region', region)
 
-    def filter_ipv4_by_ip(self, ip_number):
+    def filter_ipv4_by_ip(self, ip_numbers):
         """mutates the IPv4 list with IP filter"""
-        print(f'[+] IPv4 CIDR ranges filter for {ip_number}')
+        print(f'[+] IPv4 CIDR ranges filter for {ip_numbers}')
         result = {'prefixes': []}
-        for prefix in self.ip_ranges['prefixes']:
-            cidr = prefix['ip_prefix'].strip()
-            if ipaddress.IPv4Address(ip_number) in ipaddress.ip_network(cidr):
-                result['prefixes'].append(prefix)
+        for ip_number in ip_numbers.split(','):
+            for prefix in self.ip_ranges['prefixes']:
+                cidr = prefix['ip_prefix'].strip()
+                if ipaddress.IPv4Address(ip_number) in ipaddress.ip_network(cidr):
+                    result['prefixes'].append(prefix)
         self.ip_ranges = result
 
     def print_wide(self):
@@ -66,6 +69,18 @@ class IPRanges:
             cidr = prefix['ip_prefix'].strip()
             net = ipaddress.ip_network(cidr)
             print(f'[+] service {service}, region {region}, cidr {cidr} [{net[0]} - to {net[-1]}]')
+
+    def print_csv(self):
+        """print the (remaining) IPv4 list"""
+        if len(self.ip_ranges['prefixes']) == 0:
+            print('[-] Empty result')
+        print('region;service;cidr;from;to')
+        for prefix in self.ip_ranges['prefixes']:
+            service = prefix['service']
+            region = prefix['region']
+            cidr = prefix['ip_prefix'].strip()
+            net = ipaddress.ip_network(cidr)
+            print(f'{region};{service};{cidr};{net[0]};{net[-1]}')
 
     def print_filters(self):
         """print the services and regions from the (remaining) IPv4 list"""
@@ -87,6 +102,7 @@ parser = argparse.ArgumentParser('Filter AWS IP Ranges')
 parser.add_argument("-r", "--region", help="region filter, like eu-west-2")
 parser.add_argument("-s", "--service", help="service filter, like S3, AMAZON")
 parser.add_argument('-f', "--filters", help="list filters", action="store_true")
+parser.add_argument('-c', "--csv", help="output csv", action="store_true")
 parser.add_argument("-ip", "--lookup", help="lookup service and region by ip")
 args = parser.parse_args()
 
@@ -107,5 +123,7 @@ if args.lookup is not None:
 
 if args.filters:
     ranges.print_filters()
+elif args.csv:
+    ranges.print_csv()
 else:
     ranges.print_wide()
